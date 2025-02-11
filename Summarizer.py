@@ -34,7 +34,7 @@ def compute_sentence_scores(sentences):
     
     # Compute similarity matrix
     similarity_matrix = np.dot(tfidf_matrix, tfidf_matrix.T).toarray()
-    
+    scikit-learn
     return similarity_matrix
 
 def generate_summary(text, num_sentences=5):

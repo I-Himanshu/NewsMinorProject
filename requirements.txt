@@ -1,6 +1,6 @@
 aiohttp
 asyncio
 nltk
-sklearn
+scikit-learn
 networkx
 numpy
