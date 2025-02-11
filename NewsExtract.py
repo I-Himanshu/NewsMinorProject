@@ -85,6 +85,10 @@ class NewsScraper:
 
         # Save 200 latest news to latest_news.json
         latest_news = {k: v for k, v in list(old_data.items())[:200]}
+        latest_keys = list(latest_news.keys()) 
+        # Randomly shuffle the keys
+        random.shuffle(latest_keys)
+        latest_news = {k: latest_news[k] for k in latest_keys}
         with open("latest_news.json", "w") as f:
             json.dump(latest_news, f, indent=4)
         with open(filename, "w") as f:
