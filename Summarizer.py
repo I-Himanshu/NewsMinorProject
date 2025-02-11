@@ -60,12 +60,12 @@ def generate_summary(text, num_sentences=5):
     
     return " ".join(summary_sentences)
 
-with open("news_output.json") as f:
-    data = json.load(f)
+# with open("news_output.json") as f:
+#     data = json.load(f)
 
-for item in data[2:3]:
-    item["summary"] = generate_summary(item["article_text"])
-    print(item["headline"])
-    print(item["summary"])
-    print("-"*60)
-    print(item["article_text"])
+# for item in data[2:3]:
+#     item["summary"] = generate_summary(item["article_text"])
+#     print(item["headline"])
+#     print(item["summary"])
+#     print("-"*60)
+#     print(item["article_text"])

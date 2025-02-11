@@ -1,0 +1,6 @@
+aiohttp
+asyncio
+nltk
+sklearn
+networkx
+numpy

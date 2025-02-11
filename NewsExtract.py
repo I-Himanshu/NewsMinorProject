@@ -3,6 +3,7 @@ import aiohttp
 import json
 from datetime import datetime
 from bs4 import BeautifulSoup
+from Summarizer import preprocess_text, generate_summary
 
 
 class NewsScraper:
@@ -40,14 +41,18 @@ class NewsScraper:
                     "headline": (soup.find("meta", property="og:title") or {}).get("content", ""),
                     "thumbnail": (soup.find("meta", property="og:image") or {}).get("content", ""),
                     "article_text": "\n".join(p.text for p in article.find_all("p")),
-                    "timestamp": article.find("time")["datetime"] if article.find("time") else datetime.now().isoformat()
+                    "timestamp": article.find("time")["datetime"] if article.find("time") else datetime.now().isoformat(),
+                    "summary": generate_summary(article.get_text()),
+                    "keywords": [tag.get_text() for tag in article.find("div", {"data-component": "tags"}).find("div").find_all("a")] if article.find("div", {"data-component": "tags"}) else [],
+                    "author": article.find("div", {"data-testid": "byline-new-contributors"}).find_all("span")[0].get_text() if article.find("div", {"data-testid": "byline-new-contributors"}) else "",
+                    "source": article.find("div", {"data-testid": "byline-new-contributors"}).find_all("span")[1].get_text() if article.find("div", {"data-testid": "byline-new-contributors"}) else "",
                 }
         except Exception:
             return {"headline": "Error", "thumbnail": "Error", "article_text": "Error"}
 
     async def scrape_articles(self, session, urls):
-        tasks = [self.fetch_article(session, url) for url in urls]
-        print(f"Scraping {len(urls)} articles...", urls)
+        tasks = [self.fetch_article(session, url) for url in urls[:]]
+        print(f"Scraping {len(urls)} articles...")
         return await asyncio.gather(*tasks)
 
     async def run(self):
@@ -58,12 +63,34 @@ class NewsScraper:
             return [{**h, **a} for h, a in zip(headlines, articles)]
 
     def save_to_json(self, data, filename="news_output.json"):
+        with open(filename, "r") as f:
+            old_data = json.load(f)
+        for key, value in data.items():
+            old_data[key] = value
+        print("Sorting News by timestamp...")
+        old_data = {
+            k: v for k, v in sorted(
+                old_data.items(),
+                key=lambda item: datetime.fromisoformat(
+                    item[1].get("timestamp", "2000-01-01T00:00:00")
+                ).replace(tzinfo=None),  # Remove timezone info
+                reverse=True
+            )
+        }
+        # Remove Error articles
+        old_data = {k: v for k, v in old_data.items() if v["headline"] != "Error"}
+
+        # Save 200 latest news to latest_news.json
+        latest_news = {k: v for k, v in list(old_data.items())[:200]}
+        with open("latest_news.json", "w") as f:
+            json.dump(latest_news, f, indent=4)
         with open(filename, "w") as f:
-            json.dump(data, f, indent=2)
-        print(f"Saved {len(data)} articles to {filename}")
+            json.dump(old_data, f, indent=4)
+        print("News saved to news_output.json, Total news:", len(old_data))
 
 
 if __name__ == "__main__":
     scraper = NewsScraper()
     news_data = asyncio.run(scraper.run())
+    news_data = {item["url"]: item for item in news_data}
     scraper.save_to_json(news_data)
