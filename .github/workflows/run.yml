@@ -39,4 +39,4 @@ jobs:
           git add .
           git commit -m "Update data" || echo "No changes to commit"
           # Use the GITHUB_TOKEN for authentication
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
