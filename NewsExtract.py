@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from bs4 import BeautifulSoup
 from Summarizer import preprocess_text, generate_summary
-
+import random
 
 class NewsScraper:
     def __init__(self):
@@ -65,9 +65,11 @@ class NewsScraper:
     def save_to_json(self, data, filename="news_output.json"):
         with open(filename, "r") as f:
             old_data = json.load(f)
+        count = 0
         for key, value in data.items():
             if key not in old_data:
                 old_data[key] = value
+                count += 1
         print("Sorting News by timestamp...")
         old_data = {
             k: v for k, v in sorted(
@@ -87,7 +89,7 @@ class NewsScraper:
             json.dump(latest_news, f, indent=4)
         with open(filename, "w") as f:
             json.dump(old_data, f, indent=4)
-        print("News saved to news_output.json, Total news:", len(old_data))
+        print("News saved to news_output.json, Total news:", len(old_data), "New news:", count)
 
 
 if __name__ == "__main__":
