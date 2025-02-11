@@ -66,7 +66,8 @@ class NewsScraper:
         with open(filename, "r") as f:
             old_data = json.load(f)
         for key, value in data.items():
-            old_data[key] = value
+            if key not in old_data:
+                old_data[key] = value
         print("Sorting News by timestamp...")
         old_data = {
             k: v for k, v in sorted(
