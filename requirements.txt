@@ -4,3 +4,4 @@ nltk
 scikit-learn
 networkx
 numpy
+bs4
