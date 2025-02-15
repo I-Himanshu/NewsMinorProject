@@ -9,6 +9,7 @@ import json
 # Download necessary NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
+nltk.download('punkt_tab')
 
 def preprocess_text(text):
     """
